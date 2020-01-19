@@ -11,7 +11,16 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    var blockRotation: Bool = false
 
+    // Block rotation
+    private func application(application: UIApplication, supportedInterfaceOrientationsForWindow window: UIWindow?) -> Int {
+        if (self.blockRotation) {
+            return Int(UIInterfaceOrientationMask.portrait.rawValue)
+        } else {
+            return Int(UIInterfaceOrientationMask.all.rawValue)
+        }
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
