@@ -25,6 +25,12 @@ class ViewController: UIViewController, UIApplicationDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Prevent dark mode
+        if #available(iOS 13.0, *) {
+            // Always adopt a light interface style.
+            overrideUserInterfaceStyle = .light
+        }
+        
         appDelegate.blockRotation = true
 
         // Initialize input box style
@@ -83,19 +89,22 @@ class ViewController: UIViewController, UIApplicationDelegate {
             tipInput.isUserInteractionEnabled = false
             tipInput.attributedPlaceholder = NSAttributedString(string: "",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+            revertView()
             
         case 1:
             tipModePercentage = 10
             tipInput.isUserInteractionEnabled = false
             tipInput.attributedPlaceholder = NSAttributedString(string: "",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+            revertView()
             
         case 2:
             tipModePercentage = 15
             tipInput.isUserInteractionEnabled = false
             tipInput.attributedPlaceholder = NSAttributedString(string: "",
             attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-            
+            revertView()
+
         default:
             tipModePercentage = nil
             tipInput.isUserInteractionEnabled = true
@@ -108,6 +117,11 @@ class ViewController: UIViewController, UIApplicationDelegate {
     
     // Close keyboard on tap
     @objc func didTapScreen(sender: UITapGestureRecognizer) {
+        revertView()
+    }
+    
+    // Revert view to normal
+    func revertView() {
         view.endEditing(true)
         
         // Make view return to normal
@@ -151,13 +165,16 @@ class ViewController: UIViewController, UIApplicationDelegate {
     @objc func textFieldDidChange(_ textField: UITextField) {
         // Check if text field empty or not
         guard let text = textField.text, !text.isEmpty else {
-            tipMode.isHidden = false
-            tipView.isHidden = false
+            tipMode.isHidden = true
+            tipView.isHidden = true
             return
         }
         
-        tipMode.isHidden = true
-        tipView.isHidden = true
+        tipMode.isHidden = false
+        tipView.isHidden = false
+        
+        // Move textField up
+        priceInput.frame.origin.y -= 100.0
     }
 }
 
