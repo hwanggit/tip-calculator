@@ -11,7 +11,7 @@ import UIKit
 class ViewController: UIViewController, UIApplicationDelegate {
     
     var appDelegate = UIApplication.shared.delegate as! AppDelegate
-
+    
     @IBOutlet weak var priceInput: UITextField!
     @IBOutlet weak var tipInput: UITextField!
     @IBOutlet weak var equalsSign: UILabel!
@@ -22,35 +22,37 @@ class ViewController: UIViewController, UIApplicationDelegate {
     
     var tipModePercentage: NSNumber?
     let screenSize:CGRect = UIScreen.main.bounds
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // Prevent dark mode
         if #available(iOS 13.0, *) {
             // Always adopt a light interface style.
             overrideUserInterfaceStyle = .light
         }
         
+        // Attempt to lock rotation
         appDelegate.blockRotation = true
-
+        
         // Initialize input box style
         priceInput.keyboardType = .numberPad
         priceInput.attributedPlaceholder = NSAttributedString(string: "$",
-        attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+                                                              attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
         
         // Initialize input box style
         tipInput.keyboardType = .numberPad
-
+        
         // Put view offset on right
         let rightView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 10, height: tipInput.frame.height))
         tipInput.rightView  = rightView
         tipInput.rightViewMode = .always
-
+        
         // Disable user interaction if not custom
         if tipMode.selectedSegmentIndex != 3 {
             tipInput.isUserInteractionEnabled = false
         }
-
+        
         // Initialize tap recognizer, and add to view
         let tapScreen = UITapGestureRecognizer(target: self, action: #selector(didTapScreen(sender:)))
         
@@ -81,6 +83,11 @@ class ViewController: UIViewController, UIApplicationDelegate {
         tipMode.isHidden = true
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        // open keyboard
+        priceInput.becomeFirstResponder()
+    }
+    
     // Change mode based on segment
     @IBAction func segmentChanged(_ sender: UISegmentedControl) {
         switch tipMode.selectedSegmentIndex {
@@ -88,30 +95,30 @@ class ViewController: UIViewController, UIApplicationDelegate {
             tipModePercentage = 0
             tipInput.isUserInteractionEnabled = false
             tipInput.attributedPlaceholder = NSAttributedString(string: "",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+                                                                attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
             revertView()
             
         case 1:
             tipModePercentage = 10
             tipInput.isUserInteractionEnabled = false
             tipInput.attributedPlaceholder = NSAttributedString(string: "",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+                                                                attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
             revertView()
             
         case 2:
             tipModePercentage = 15
             tipInput.isUserInteractionEnabled = false
             tipInput.attributedPlaceholder = NSAttributedString(string: "",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
+                                                                attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
             revertView()
-
+            
         default:
             tipModePercentage = nil
             tipInput.isUserInteractionEnabled = true
             tipInput.becomeFirstResponder()
             tipInput.layer.cornerRadius = 10.0
             tipInput.attributedPlaceholder = NSAttributedString(string: "$",
-            attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
+                                                                attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
         }
     }
     
@@ -142,12 +149,12 @@ class ViewController: UIViewController, UIApplicationDelegate {
     
     // Set the shouldAutorotate to False
     override open var shouldAutorotate: Bool {
-       return false
+        return false
     }
-
+    
     // Specify the orientation.
     override open var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-       return .portrait
+        return .portrait
     }
     
     // Handle keyboard showing method
@@ -178,3 +185,32 @@ class ViewController: UIViewController, UIApplicationDelegate {
     }
 }
 
+extension UINavigationController {
+    
+    override open var shouldAutorotate: Bool {
+        get {
+            if let visibleVC = visibleViewController {
+                return visibleVC.shouldAutorotate
+            }
+            return super.shouldAutorotate
+        }
+    }
+    
+    override open var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation{
+        get {
+            if let visibleVC = visibleViewController {
+                return visibleVC.preferredInterfaceOrientationForPresentation
+            }
+            return super.preferredInterfaceOrientationForPresentation
+        }
+    }
+    
+    override open var supportedInterfaceOrientations: UIInterfaceOrientationMask{
+        get {
+            if let visibleVC = visibleViewController {
+                return visibleVC.supportedInterfaceOrientations
+            }
+            return super.supportedInterfaceOrientations
+        }
+    }
+}
