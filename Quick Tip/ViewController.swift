@@ -10,8 +10,6 @@ import UIKit
 
 class ViewController: UIViewController, UIApplicationDelegate {
     
-    var appDelegate = UIApplication.shared.delegate as! AppDelegate
-    
     @IBOutlet weak var priceInput: UITextField!
     @IBOutlet weak var tipInput: UITextField!
     @IBOutlet weak var equalsSign: UILabel!
@@ -20,7 +18,7 @@ class ViewController: UIViewController, UIApplicationDelegate {
     @IBOutlet weak var tipMode: UISegmentedControl!
     @IBOutlet weak var tipView: UIView!
     
-    var tipModePercentage: NSNumber?
+    var tipModePercentage: String?
     let screenSize:CGRect = UIScreen.main.bounds
     
     override func viewDidLoad() {
@@ -32,16 +30,13 @@ class ViewController: UIViewController, UIApplicationDelegate {
             overrideUserInterfaceStyle = .light
         }
         
-        // Attempt to lock rotation
-        appDelegate.blockRotation = true
-        
         // Initialize input box style
-        priceInput.keyboardType = .numberPad
+        priceInput.keyboardType = .decimalPad
         priceInput.attributedPlaceholder = NSAttributedString(string: "$",
                                                               attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
         
         // Initialize input box style
-        tipInput.keyboardType = .numberPad
+        tipInput.keyboardType = .decimalPad
         
         // Put view offset on right
         let rightView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 10, height: tipInput.frame.height))
@@ -74,7 +69,8 @@ class ViewController: UIViewController, UIApplicationDelegate {
         )
         
         // Listen for text field input change
-        priceInput.addTarget(self, action: #selector(textFieldDidChange(_:)), for: UIControl.Event.editingChanged)
+        priceInput.addTarget(self, action: #selector(priceFieldDidChange(_:)), for: UIControl.Event.editingChanged)
+        tipInput.addTarget(self, action: #selector(tipFieldDidChange(_:)), for: UIControl.Event.editingChanged)
         
         // Hide options display and calculations
         tipView.isHidden = true
@@ -86,31 +82,42 @@ class ViewController: UIViewController, UIApplicationDelegate {
     override func viewDidAppear(_ animated: Bool) {
         // open keyboard
         priceInput.becomeFirstResponder()
+        
+        // Set tip percentage
+        switch tipMode.selectedSegmentIndex {
+        case 0:
+            tipModePercentage = "0"
+        case 1:
+            tipModePercentage = "10"
+        case 2:
+            tipModePercentage = "15"
+        default:
+            tipModePercentage = nil
+        }
     }
     
     // Change mode based on segment
     @IBAction func segmentChanged(_ sender: UISegmentedControl) {
         switch tipMode.selectedSegmentIndex {
         case 0:
-            tipModePercentage = 0
+            tipModePercentage = "0"
             tipInput.isUserInteractionEnabled = false
             tipInput.attributedPlaceholder = NSAttributedString(string: "",
                                                                 attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-            revertView()
-            
+            priceInput.becomeFirstResponder()
         case 1:
-            tipModePercentage = 10
+            tipModePercentage = "10"
             tipInput.isUserInteractionEnabled = false
             tipInput.attributedPlaceholder = NSAttributedString(string: "",
                                                                 attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-            revertView()
+            priceInput.becomeFirstResponder()
             
         case 2:
-            tipModePercentage = 15
+            tipModePercentage = "15"
             tipInput.isUserInteractionEnabled = false
             tipInput.attributedPlaceholder = NSAttributedString(string: "",
                                                                 attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-            revertView()
+            priceInput.becomeFirstResponder()
             
         default:
             tipModePercentage = nil
@@ -119,7 +126,11 @@ class ViewController: UIViewController, UIApplicationDelegate {
             tipInput.layer.cornerRadius = 10.0
             tipInput.attributedPlaceholder = NSAttributedString(string: "$",
                                                                 attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
+            tipInput.text = ""
         }
+        
+        // Set tip and total after segment change
+        setTipAndTotal()
     }
     
     // Close keyboard on tap
@@ -169,9 +180,9 @@ class ViewController: UIViewController, UIApplicationDelegate {
     }
     
     // When textfield changes, hide/show options view
-    @objc func textFieldDidChange(_ textField: UITextField) {
+    @objc func priceFieldDidChange(_ textField: UITextField) {
         // Check if text field empty or not
-        guard let text = textField.text, !text.isEmpty else {
+        guard let text = textField.text, !text.isEmpty, !text.starts(with: ".") else {
             tipMode.isHidden = true
             tipView.isHidden = true
             return
@@ -179,12 +190,58 @@ class ViewController: UIViewController, UIApplicationDelegate {
         
         tipMode.isHidden = false
         tipView.isHidden = false
-        
-        // Move textField up
-        priceInput.frame.origin.y -= 100.0
+        setTipAndTotal()
+    }
+    
+    // When textfield changes, hide/show options view
+    @objc func tipFieldDidChange(_ textField: UITextField) {
+        // Set custom tip and total
+        setCustomTip(textField)
+    }
+    
+    // set current price
+    func setTipAndTotal() {
+        // Get current price and calculate total
+        if let price = priceInput.text {
+            if let tipPercent = tipModePercentage {
+                // Calculate total price from tip
+                let total = (1.0 + Double(tipPercent)! / 100.0) * Double(price)!
+                postTip.text = String(format: "%.2f", total)
+                
+                // Calculate tip
+                let tip = (Double(tipPercent)! / 100.0) * Double(price)!
+                tipInput.text = String(format: "%.2f", tip)
+            }
+            else {
+                // Set total to current price if custom
+                postTip.text = String(format: "%.2f", Double(price)!)
+            }
+        } else {
+            postTip.text = "0.00"
+        }
+    }
+    
+    // Set custom tip
+    func setCustomTip(_ customTipField: UITextField) {
+        // Get current price and calculate total
+        if let price = priceInput.text {
+            // Check if text field empty or not
+            guard let text = customTipField.text, !text.isEmpty, !text.starts(with: ".") else {
+                // If custom tip is empty, revert to original price
+                postTip.text = String(format: "%.2f", Double(price)!)
+                return
+            }
+            
+            // Get custom tip and set total
+            let totalCustom = Double(text)! + Double(price)!
+            postTip.text = String(format: "%.2f", totalCustom)
+        } else {
+            postTip.text = "0.00"
+        }
     }
 }
 
+// Prevent screen rotate
 extension UINavigationController {
     
     override open var shouldAutorotate: Bool {
