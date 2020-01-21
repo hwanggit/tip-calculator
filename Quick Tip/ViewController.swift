@@ -84,12 +84,16 @@ class ViewController: UIViewController, UIApplicationDelegate {
         
         // Listen for app into background
         NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
+
+        // Listen for app into foreground
+        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+        
+        // Open keyboard
+        priceInput.becomeFirstResponder()
     }
     
     // Set tip mode percentage when view appears
     override func viewDidAppear(_ animated: Bool) {
-        // Open keyboard
-        priceInput.becomeFirstResponder()
 
         // Set tip percentage
         switch tipMode.selectedSegmentIndex {
@@ -109,6 +113,11 @@ class ViewController: UIViewController, UIApplicationDelegate {
         revertView()
     }
     
+    // Open keyboard when return from background
+    @objc func appMovedToForeground() {
+        priceInput.becomeFirstResponder()
+    }
+
     // Get settings defaults
     func registerSettingsBundle(){
         let appDefaults = [String:AnyObject]()
