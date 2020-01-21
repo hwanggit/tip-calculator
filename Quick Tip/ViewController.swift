@@ -88,6 +88,9 @@ class ViewController: UIViewController, UIApplicationDelegate {
     
     // Set tip mode percentage when view appears
     override func viewDidAppear(_ animated: Bool) {
+        // Open keyboard
+        priceInput.becomeFirstResponder()
+
         // Set tip percentage
         switch tipMode.selectedSegmentIndex {
         case 0:
