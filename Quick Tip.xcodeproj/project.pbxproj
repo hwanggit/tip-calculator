@@ -15,6 +15,7 @@
 		1E22980723D3E4AB0087410F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1E22980523D3E4AB0087410F /* LaunchScreen.storyboard */; };
 		1E22981223D3E4AB0087410F /* Quick_TipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E22981123D3E4AB0087410F /* Quick_TipTests.swift */; };
 		1E22981D23D3E4AB0087410F /* Quick_TipUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E22981C23D3E4AB0087410F /* Quick_TipUITests.swift */; };
+		1E48DC9223D668380079784B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 1E48DC9123D668380079784B /* Settings.bundle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		1E22981823D3E4AB0087410F /* Quick TipUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Quick TipUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1E22981C23D3E4AB0087410F /* Quick_TipUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Quick_TipUITests.swift; sourceTree = "<group>"; };
 		1E22981E23D3E4AB0087410F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1E48DC9123D668380079784B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 				1E22980323D3E4AB0087410F /* Assets.xcassets */,
 				1E22980523D3E4AB0087410F /* LaunchScreen.storyboard */,
 				1E22980823D3E4AB0087410F /* Info.plist */,
+				1E48DC9123D668380079784B /* Settings.bundle */,
 			);
 			path = "Quick Tip";
 			sourceTree = "<group>";
@@ -232,6 +235,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E48DC9223D668380079784B /* Settings.bundle in Resources */,
 				1E22980723D3E4AB0087410F /* LaunchScreen.storyboard in Resources */,
 				1E22980423D3E4AB0087410F /* Assets.xcassets in Resources */,
 				1E22980223D3E4AA0087410F /* Main.storyboard in Resources */,

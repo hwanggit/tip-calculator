@@ -10,6 +10,7 @@ import UIKit
 
 class ViewController: UIViewController, UIApplicationDelegate {
     
+    // IB Outlets
     @IBOutlet weak var priceInput: UITextField!
     @IBOutlet weak var tipInput: UITextField!
     @IBOutlet weak var equalsSign: UILabel!
@@ -18,6 +19,7 @@ class ViewController: UIViewController, UIApplicationDelegate {
     @IBOutlet weak var tipMode: UISegmentedControl!
     @IBOutlet weak var tipView: UIView!
     
+    // Global vars
     var tipModePercentage: String?
     let screenSize:CGRect = UIScreen.main.bounds
     
@@ -34,7 +36,6 @@ class ViewController: UIViewController, UIApplicationDelegate {
         priceInput.keyboardType = .decimalPad
         priceInput.attributedPlaceholder = NSAttributedString(string: "$",
                                                               attributes: [NSAttributedString.Key.foregroundColor: UIColor.gray])
-        
         // Initialize input box style
         tipInput.keyboardType = .decimalPad
         
@@ -50,9 +51,7 @@ class ViewController: UIViewController, UIApplicationDelegate {
         
         // Initialize tap recognizer, and add to view
         let tapScreen = UITapGestureRecognizer(target: self, action: #selector(didTapScreen(sender:)))
-        
         let tapPrice = UITapGestureRecognizer(target: self, action: #selector(didTapPrice(sender:)))
-        
         let tapTip = UITapGestureRecognizer(target: self, action: #selector(didTapTip(sender:)))
         
         // Add tap handlers to view
@@ -77,12 +76,18 @@ class ViewController: UIViewController, UIApplicationDelegate {
         
         // Hide mode segment
         tipMode.isHidden = true
+        
+        // Register default settings, and listen for changes
+        registerSettingsBundle()
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.defaultsChanged), name: UserDefaults.didChangeNotification, object: nil)
+        defaultsChanged()
+        
+        // Listen for app into background
+        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
     }
     
+    // Set tip mode percentage when view appears
     override func viewDidAppear(_ animated: Bool) {
-        // open keyboard
-        priceInput.becomeFirstResponder()
-        
         // Set tip percentage
         switch tipMode.selectedSegmentIndex {
         case 0:
@@ -94,6 +99,47 @@ class ViewController: UIViewController, UIApplicationDelegate {
         default:
             tipModePercentage = nil
         }
+    }
+    
+    // Close keyboard when backgrounded
+    @objc func appMovedToBackground() {
+        revertView()
+    }
+    
+    // Get settings defaults
+    func registerSettingsBundle(){
+        let appDefaults = [String:AnyObject]()
+        UserDefaults.standard.register(defaults: appDefaults)
+    }
+    
+    // Detect when default values change
+    @objc func defaultsChanged(){
+        // Get current color theme
+        let colorPick = Int(UserDefaults.standard.string(forKey: "color_themes")!)!
+        
+        // Change color theme depending on settings
+        switch colorPick {
+        case 0:
+            navigationController?.navigationBar.barTintColor = UIColor.systemRed
+            tipMode.layer.backgroundColor = UIColor.systemRed.cgColor
+            tipView.backgroundColor = UIColor.systemRed
+            tipInput.backgroundColor = UIColor.systemRed
+        case 2:
+            navigationController?.navigationBar.barTintColor = UIColor.systemBlue
+            tipMode.layer.backgroundColor = UIColor.systemBlue.cgColor
+            tipView.backgroundColor = UIColor.systemBlue
+            tipInput.backgroundColor = UIColor.systemBlue
+        default:
+            navigationController?.navigationBar.barTintColor = UIColor.systemYellow
+            tipMode.layer.backgroundColor = UIColor.systemYellow.cgColor
+            tipView.backgroundColor = UIColor.systemYellow
+            tipInput.backgroundColor = UIColor.systemYellow
+        }
+    }
+    
+    // Deallocate from memory
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     // Change mode based on segment
