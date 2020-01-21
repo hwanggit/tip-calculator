@@ -115,6 +115,10 @@ class ViewController: UIViewController, UIApplicationDelegate {
     // Detect when default values change
     @objc func defaultsChanged(){
         // Get current color theme
+        guard let checkTheme = UserDefaults.standard.string(forKey: "color_themes") else {
+            return
+        }
+
         let colorPick = Int(UserDefaults.standard.string(forKey: "color_themes")!)!
         
         // Change color theme depending on settings
